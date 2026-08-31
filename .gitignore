@@ -1,0 +1,4 @@
+dist/
+source/
+private/
+*.secret

@@ -1,0 +1,33 @@
+name: Encrypt private source artifact
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_ref:
+        description: Private source branch to encrypt
+        required: true
+        default: private-build
+
+permissions:
+  contents: read
+
+jobs:
+  encrypt:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout private source
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.source_ref }}
+      - name: Build encrypted artifact
+        env:
+          SITE_PASSPHRASE: ${{ secrets.SITE_PASSPHRASE }}
+          SOURCE_HTML_PATH: source/index.html
+        run: node scripts/build-encrypted-site.mjs
+      - name: Upload encrypted artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: encrypted-site
+          path: dist/index.html
+          if-no-files-found: error
+          retention-days: 1
